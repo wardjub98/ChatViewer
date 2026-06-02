@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  background: #f0f2f5;
+}
+.dark body { background: #111b21; }
+
+/* WhatsApp chat wallpaper pattern (subtle) */
+.wa-wallpaper {
+  background-color: #efeae2;
+  background-image:
+    radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+    radial-gradient(rgba(0,0,0,0.03) 1px, transparent 1px);
+  background-size: 24px 24px, 48px 48px;
+  background-position: 0 0, 12px 12px;
+}
+.dark .wa-wallpaper {
+  background-color: #0b141a;
+  background-image:
+    radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
+}
+
+/* Bubble tails */
+.bubble-tail-in::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -8px;
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 0 8px 8px 0;
+  border-color: transparent #ffffff transparent transparent;
+}
+.dark .bubble-tail-in::before { border-color: transparent #202c33 transparent transparent; }
+
+.bubble-tail-out::before {
+  content: '';
+  position: absolute;
+  top: 0; right: -8px;
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 0 0 8px 8px;
+  border-color: transparent transparent transparent #d9fdd3;
+}
+.dark .bubble-tail-out::before { border-color: transparent transparent transparent #005c4b; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
+.dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
+
+/* Waveform animation for voice notes */
+.wave-bar {
+  display: inline-block;
+  width: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  margin: 0 1px;
+}
