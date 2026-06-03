@@ -103,6 +103,24 @@ const ChatArea = forwardRef(function ChatArea(
     listRef.current?.resetAfterIndex(0)
   }, [filteredRows])
 
+  // On first render (and whenever the underlying rows reset), jump to the newest
+  // message so the chat opens at the bottom like WhatsApp does. We re-scroll a
+  // few times because row heights are estimates until DOM-measured.
+  const didInitialScroll = useRef(false)
+  useEffect(() => { didInitialScroll.current = false }, [rows])
+  useEffect(() => {
+    if (didInitialScroll.current) return
+    if (!query && filteredRows.length > 0 && size.h > 0 && listRef.current) {
+      const last = filteredRows.length - 1
+      listRef.current.scrollToItem(last, 'end')
+      // Re-scroll after measurements settle so we truly land at the bottom.
+      const t1 = setTimeout(() => listRef.current?.scrollToItem(last, 'end'), 50)
+      const t2 = setTimeout(() => listRef.current?.scrollToItem(last, 'end'), 250)
+      didInitialScroll.current = true
+      return () => { clearTimeout(t1); clearTimeout(t2) }
+    }
+  }, [filteredRows, size.h, query])
+
   const getSize = (i) => sizeMap.current.get(i) ?? estimateHeight(filteredRows[i])
   const setMeasured = (i, h) => {
     const prev = sizeMap.current.get(i)

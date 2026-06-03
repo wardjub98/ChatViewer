@@ -1,15 +1,31 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import Sidebar from './Sidebar.jsx'
 import ChatHeader from './ChatHeader.jsx'
 import ChatArea from './ChatArea.jsx'
 import MediaSidebar from './MediaSidebar.jsx'
 import Lightbox from './Lightbox.jsx'
 
+const MOBILE_BP = 768 // px — Tailwind's md breakpoint
+
 export default function ChatLayout({ data, dark, onToggleDark, onReset, onBackToStats }) {
   const [primaryAuthor, setPrimaryAuthor] = useState(data.participants[0] || null)
   const [query, setQuery] = useState('')
   const [showInfo, setShowInfo] = useState(false)
   const chatRef = useRef(null)
+
+  // Sidebar collapsed state — auto-collapse on mobile widths.
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window === 'undefined') return true
+    return window.innerWidth >= MOBILE_BP
+  })
+
+  // Track viewport so we can render the sidebar as an overlay on mobile.
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < MOBILE_BP)
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < MOBILE_BP)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
 
   const images = useMemo(() => {
     const out = []
@@ -21,26 +37,50 @@ export default function ChatLayout({ data, dark, onToggleDark, onReset, onBackTo
     return out
   }, [data.messages])
 
-  const [lightbox, setLightbox] = useState(null) // {index}
+  const [lightbox, setLightbox] = useState(null)
 
-  const openImageByUrl = (url, messageId) => {
+  const openImageByUrl = (url) => {
     const idx = images.findIndex(i => i.url === url)
     setLightbox({ index: idx >= 0 ? idx : 0 })
   }
 
-  const jumpTo = (id) => chatRef.current?.scrollToMessage(id)
+  const jumpTo = (id) => {
+    chatRef.current?.scrollToMessage(id)
+    if (isMobile) setShowInfo(false)
+  }
+
+  // On mobile, picking a person in the sidebar should auto-close it.
+  const handleSelectAuthor = (a) => {
+    setPrimaryAuthor(a)
+    if (isMobile) setSidebarOpen(false)
+  }
 
   return (
-    <div className="h-screen flex bg-wa-panel dark:bg-wa-bgDark text-wa-text dark:text-wa-textDark">
-      <Sidebar
-        data={data}
-        primaryAuthor={primaryAuthor}
-        onSelectAuthor={setPrimaryAuthor}
-        dark={dark}
-        onToggleDark={onToggleDark}
-        onBackToStats={onBackToStats}
-        onReset={onReset}
-      />
+    <div className="h-screen flex bg-wa-panel dark:bg-wa-bgDark text-wa-text dark:text-wa-textDark overflow-hidden">
+      {/* Sidebar — overlay on mobile, inline on desktop */}
+      {sidebarOpen && (
+        <>
+          {isMobile && (
+            <div
+              className="fixed inset-0 z-30 bg-black/40"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+          <div className={isMobile ? 'fixed inset-y-0 left-0 z-40 max-w-[85vw]' : 'relative'}>
+            <Sidebar
+              data={data}
+              primaryAuthor={primaryAuthor}
+              onSelectAuthor={handleSelectAuthor}
+              dark={dark}
+              onToggleDark={onToggleDark}
+              onBackToStats={onBackToStats}
+              onReset={onReset}
+              onClose={isMobile ? () => setSidebarOpen(false) : null}
+            />
+          </div>
+        </>
+      )}
+
       <main className="flex-1 flex flex-col min-w-0">
         <ChatHeader
           data={data}
@@ -49,6 +89,7 @@ export default function ChatLayout({ data, dark, onToggleDark, onReset, onBackTo
           onGoToStart={() => chatRef.current?.scrollToTop()}
           onJumpToDate={(d) => chatRef.current?.scrollToDate(d)}
           onToggleInfo={() => setShowInfo(s => !s)}
+          onToggleSidebar={() => setSidebarOpen(s => !s)}
         />
         <ChatArea
           ref={chatRef}
@@ -58,12 +99,20 @@ export default function ChatLayout({ data, dark, onToggleDark, onReset, onBackTo
           onOpenImage={openImageByUrl}
         />
       </main>
-      <MediaSidebar
-        open={showInfo}
-        onClose={() => setShowInfo(false)}
-        messages={data.messages}
-        onJumpTo={jumpTo}
-      />
+
+      {/* Media sidebar — also overlay on mobile */}
+      {showInfo && isMobile && (
+        <div className="fixed inset-0 z-30 bg-black/40" onClick={() => setShowInfo(false)} />
+      )}
+      <div className={showInfo && isMobile ? 'fixed inset-y-0 right-0 z-40 max-w-[85vw]' : ''}>
+        <MediaSidebar
+          open={showInfo}
+          onClose={() => setShowInfo(false)}
+          messages={data.messages}
+          onJumpTo={jumpTo}
+        />
+      </div>
+
       {lightbox && (
         <Lightbox
           images={images}

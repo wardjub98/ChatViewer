@@ -1,10 +1,10 @@
 import React from 'react'
-import { MessageCircle, BarChart3, RotateCcw, Sun, Moon } from 'lucide-react'
+import { MessageCircle, BarChart3, RotateCcw, Sun, Moon, X } from 'lucide-react'
 
-export default function Sidebar({ data, primaryAuthor, onSelectAuthor, dark, onToggleDark, onBackToStats, onReset }) {
+export default function Sidebar({ data, primaryAuthor, onSelectAuthor, dark, onToggleDark, onBackToStats, onReset, onClose }) {
   const lastMessage = data.messages[data.messages.length - 1]
   return (
-    <aside className="w-[320px] shrink-0 border-r border-wa-border dark:border-wa-borderDark bg-white dark:bg-wa-panelDark flex flex-col">
+    <aside className="w-[320px] h-full shrink-0 border-r border-wa-border dark:border-wa-borderDark bg-white dark:bg-wa-panelDark flex flex-col">
       <header className="flex items-center justify-between px-4 py-3 border-b border-wa-border dark:border-wa-borderDark">
         <div className="flex items-center gap-2 font-semibold">
           <MessageCircle className="text-wa-green" size={18} /> Chats
@@ -19,6 +19,11 @@ export default function Sidebar({ data, primaryAuthor, onSelectAuthor, dark, onT
           <button onClick={onReset} title="Load new chat" className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10">
             <RotateCcw size={16} />
           </button>
+          {onClose && (
+            <button onClick={onClose} title="Close menu" className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10">
+              <X size={16} />
+            </button>
+          )}
         </div>
       </header>
 

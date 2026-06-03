@@ -1,10 +1,10 @@
 import React, { useRef, useState } from 'react'
-import { Search, X, Calendar, ChevronsUp, Info, Users } from 'lucide-react'
+import { Search, X, Calendar, ChevronsUp, Info, Users, Menu } from 'lucide-react'
 
 export default function ChatHeader({
   data, query, setQuery,
   onGoToStart, onJumpToDate,
-  onToggleInfo,
+  onToggleInfo, onToggleSidebar,
 }) {
   const [showSearch, setShowSearch] = useState(false)
   const [showDate, setShowDate] = useState(false)
@@ -14,8 +14,18 @@ export default function ChatHeader({
   const maxDate = [...data.messages].reverse().find(m => m.date)?.date
 
   return (
-    <header className="h-14 px-4 flex items-center justify-between bg-wa-panel dark:bg-wa-panelDark border-b border-wa-border dark:border-wa-borderDark">
-      <button onClick={onToggleInfo} className="flex items-center gap-3 min-w-0 hover:bg-black/5 dark:hover:bg-white/10 -ml-2 px-2 py-1 rounded">
+    <header className="h-14 px-4 flex items-center justify-between bg-wa-panel dark:bg-wa-panelDark border-b border-wa-border dark:border-wa-borderDark gap-2">
+      {onToggleSidebar && (
+        <button
+          onClick={onToggleSidebar}
+          className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 shrink-0"
+          title="Toggle chats menu"
+          aria-label="Toggle chats menu"
+        >
+          <Menu size={20} />
+        </button>
+      )}
+      <button onClick={onToggleInfo} className="flex items-center gap-3 min-w-0 flex-1 hover:bg-black/5 dark:hover:bg-white/10 px-2 py-1 rounded">
         <div className="w-9 h-9 rounded-full bg-wa-green/20 text-wa-green flex items-center justify-center">
           <Users size={18} />
         </div>
