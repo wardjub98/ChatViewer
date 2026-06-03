@@ -23,7 +23,12 @@ function classifyMime(name) {
   return MIME[extOf(name)] || 'application/octet-stream'
 }
 
-function kindOf(mime) {
+function kindOf(mime, name = '') {
+  // WhatsApp stickers are always .webp and typically named STK-…. Treat them
+  // as a separate kind so the Images gallery stays photo-only.
+  if (mime === 'image/webp' || /(^|\/)STK[-_]/i.test(name) || /sticker/i.test(name)) {
+    return 'sticker'
+  }
   if (mime.startsWith('image/')) return 'image'
   if (mime.startsWith('video/')) return 'video'
   if (mime.startsWith('audio/')) return 'audio'
@@ -58,7 +63,7 @@ export async function parseZipFolder(files) {
     const blob = dataBytesOrBlob instanceof Blob
       ? new Blob([await dataBytesOrBlob.arrayBuffer()], { type: mime })
       : new Blob([dataBytesOrBlob], { type: mime })
-    mediaMap.set(base, { blob, url: URL.createObjectURL(blob), mime, kind: kindOf(mime) })
+    mediaMap.set(base, { blob, url: URL.createObjectURL(blob), mime, kind: kindOf(mime, base) })
   }
 
   for (const f of list) {

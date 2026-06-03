@@ -66,7 +66,7 @@ export default function ChatLayout({ data, dark, onToggleDark, onReset, onBackTo
               onClick={() => setSidebarOpen(false)}
             />
           )}
-          <div className={isMobile ? 'fixed inset-y-0 left-0 z-40 max-w-[85vw]' : 'relative'}>
+          <div className={isMobile ? 'fixed inset-y-0 left-0 z-40 max-w-[85vw] h-full' : 'relative h-full'}>
             <Sidebar
               data={data}
               primaryAuthor={primaryAuthor}
@@ -104,7 +104,7 @@ export default function ChatLayout({ data, dark, onToggleDark, onReset, onBackTo
       {showInfo && isMobile && (
         <div className="fixed inset-0 z-30 bg-black/40" onClick={() => setShowInfo(false)} />
       )}
-      <div className={showInfo && isMobile ? 'fixed inset-y-0 right-0 z-40 max-w-[85vw]' : ''}>
+      <div className={showInfo && isMobile ? 'fixed inset-y-0 right-0 z-40 max-w-[85vw] h-full' : 'h-full'}>
         <MediaSidebar
           open={showInfo}
           onClose={() => setShowInfo(false)}

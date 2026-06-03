@@ -65,6 +65,15 @@ export default function MessageBubble({ message, outgoing, showAuthor, onOpenIma
           />
         )}
 
+        {media && !media.missing && media.kind === 'sticker' && (
+          <img
+            src={media.url}
+            alt="sticker"
+            loading="lazy"
+            className="mb-1 max-h-[160px] bg-transparent"
+          />
+        )}
+
         {media && !media.missing && media.kind === 'video' && (
           <video src={media.url} controls preload="metadata" className="rounded mb-1 max-h-[320px]" />
         )}
